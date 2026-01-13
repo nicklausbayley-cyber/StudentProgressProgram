@@ -1,22 +1,33 @@
+version: "3.9"
+
 services:
   db:
     image: postgres:16
+    container_name: studentprogressprogram-db
     environment:
-      POSTGRES_DB: student_risk
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: student_risk
     ports:
       - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d student_risk"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
   api:
     build: .
+    container_name: studentprogressprogram-api
+    command: >
+      bash -lc "
+      alembic upgrade head &&
+      uvicorn app.main:app --host 0.0.0.0 --port 8000
+      "
     env_file:
       - .env
     ports:
       - "8000:8000"
     depends_on:
-      - db
-    command: bash -lc "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
-volumes:
-  pgdata:
+      db:
+        condition: service_healthy
