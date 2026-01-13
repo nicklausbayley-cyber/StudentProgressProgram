@@ -10,7 +10,7 @@ from app.rbac import require_roles
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
-@router.post("/users", response_model=UserOut, dependencies=[Depends(require_roles(Role.admin))])
+@router.post("/users", response_model=UserOut, dependencies=[Depends(require_roles(Role.admin, Role.counselor))])
 async def create_user_admin_only(
     payload: UserCreate,
     db: AsyncSession = Depends(get_db),

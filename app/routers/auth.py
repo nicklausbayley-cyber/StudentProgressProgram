@@ -47,7 +47,12 @@ async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
 ):
-    user = await crud.authenticate_user(db, form_data.username, form_data.password)
+    try:
+        user = await crud.authenticate_user(db, form_data.username, form_data.password)
+    except Exception:
+        # Don't crash the API on auth failures. Surface as invalid credentials.
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 

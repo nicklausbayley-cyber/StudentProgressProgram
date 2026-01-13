@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError, InvalidHashError, VerificationError
+
 from app.config import settings
 from app.models import Role
-from argon2 import PasswordHasher
-from argon2.exceptions import VerifyMismatchError
 
 ph = PasswordHasher()
 ALGO = "HS256"
@@ -16,7 +17,8 @@ def hash_password(password: str) -> str:
 def verify_password(password: str, hashed: str) -> bool:
     try:
         return ph.verify(hashed, password)
-    except VerifyMismatchError:
+    except (VerifyMismatchError, InvalidHashError, VerificationError, TypeError, ValueError):
+        # Any invalid/mismatched hash should behave like "wrong password", not crash the API
         return False
 
 
