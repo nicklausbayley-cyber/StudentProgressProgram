@@ -1,0 +1,3 @@
+local_student_id,as_of_date,attendance_percentage,growth_status,credits_earned,expected_credits_for_grade
+S1001,2026-01-10,93.2,BELOW,11,12
+S1002,2026-01-10,96.5,MEETS,18,18
